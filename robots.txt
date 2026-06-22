@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /screenshots/
+Disallow: /assets/video/
+
+Sitemap: https://mazurlegal.pl/sitemap.xml

@@ -1,0 +1,395 @@
+{
+  "tenantId": "REPLACE_WITH_TENANT_ID",
+  "archetype": "editorial-led",
+  "designSystem": "pacta-editorial",
+  "meta": {
+    "title": "Mazur Wspólnicy — Kancelaria Prawna Warszawa | Spory, M&A, Restrukturyzacja",
+    "description": "Kancelaria Mazur Wspólnicy — specjaliści od sporów sądowych, prawa karnego gospodarczego, restrukturyzacji i M&A. Warszawa.",
+    "ogDescription": "Kancelaria Mazur Wspólnicy — prawo dla ambitnego biznesu. Warszawa.",
+    "canonical": "https://mazurlegal.pl",
+    "ogImage": "assets/images/og-mazur.jpg",
+    "brandName": "Mazur Wspólnicy",
+    "contactEmail": "kontakt@mazurlegal.pl"
+  },
+  "pages": [
+    {
+      "slug": "index",
+      "navLabel": "Strona główna",
+      "meta": {
+        "title": "Mazur Wspólnicy — Kancelaria Prawna Warszawa | Spory, M&A, Restrukturyzacja",
+        "description": "Kancelaria Mazur Wspólnicy — specjaliści od sporów sądowych, prawa karnego gospodarczego, restrukturyzacji i M&A. Warszawa.",
+        "canonical": "https://mazurlegal.pl",
+        "ogTitle": "Mazur Wspólnicy · Prawo dla ambitnego biznesu",
+        "ogDescription": "Prawo korporacyjne, spory, restrukturyzacja. Warszawa.",
+        "ogUrl": "https://mazurlegal.pl"
+      },
+      "sections": [
+        {
+          "id": "nav",
+          "recipe": "nav-editorial",
+          "fields": {
+            "logoText": {
+              "type": "text",
+              "value": "MAZUR",
+              "editable": true
+            },
+            "logoSubtext": {
+              "type": "text",
+              "value": "10 LAT",
+              "editable": true
+            },
+            "ctaInHeader": {
+              "type": "text",
+              "value": "false",
+              "editable": false
+            }
+          }
+        },
+        {
+          "id": "hero",
+          "recipe": "hero-editorial-video",
+          "fields": {
+            "headline": {
+              "type": "text",
+              "value": "Tam, gdzie inni widzą przeszkodę — my widzimy sprawę do wygrania.",
+              "editable": true
+            },
+            "videoSrc": {
+              "type": "video",
+              "value": "assets/video/hero.mp4",
+              "editable": true
+            },
+            "wordmark": {
+              "type": "text",
+              "value": "MAZUR",
+              "editable": false
+            },
+            "ctaLabel": {
+              "type": "cta",
+              "value": "Szczegóły",
+              "editable": true
+            },
+            "ctaHref": {
+              "type": "text",
+              "value": "#about",
+              "editable": false
+            }
+          }
+        },
+        {
+          "id": "about",
+          "recipe": "about-manifesto",
+          "fields": {
+            "sectionLabel": {
+              "type": "text",
+              "value": "O nas",
+              "editable": false
+            },
+            "headline": {
+              "type": "text",
+              "value": "Prawo nie jako bariera. Jako przewaga.",
+              "editable": true
+            },
+            "stats": {
+              "type": "list",
+              "value": [
+                { "number": "10", "suffix": "+", "label": "lat na rynku prawnym" },
+                { "number": "30", "suffix": "+", "label": "prawników w zespole" }
+              ],
+              "editable": true
+            },
+            "moreHref": {
+              "type": "text",
+              "value": "o-kancelarii.html",
+              "editable": false
+            }
+          }
+        },
+        {
+          "id": "practices",
+          "recipe": "practices-editorial-cards",
+          "fields": {
+            "sectionLabel": {
+              "type": "text",
+              "value": "Praktyki",
+              "editable": false
+            },
+            "headline": {
+              "type": "text",
+              "value": "Cztery obszary. Jedna obsesja: wyniki.",
+              "editable": true
+            },
+            "subheadline": {
+              "type": "text",
+              "value": "Śledzimy zmiany prawa, zanim wejdą w życie — nasi klienci zawsze są o krok przed regulatorem.",
+              "editable": true
+            },
+            "items": {
+              "type": "list",
+              "value": [
+                {
+                  "numeral": "01",
+                  "title": "Spory sądowe",
+                  "lead": "Wygrywamy sprawy, które inni uważają za przegrane — skuteczność budujemy na precyzyjnej analizie faktów, nie na pewności siebie.",
+                  "stat": "120+ spraw wygranych",
+                  "signature": "— Anna Mazur, Partner Zarządzający",
+                  "photo": "assets/images/practice-litigation.jpg",
+                  "href": "praktyki/spory.html"
+                },
+                {
+                  "numeral": "02",
+                  "title": "Prawo karne gospodarcze",
+                  "lead": "Kiedy prokuratura stawia zarzuty, liczy się każda godzina — wchodzimy na akta pierwszego dnia i nie oddajemy terenu.",
+                  "stat": "10 lat specjalizacji karnej",
+                  "signature": "— Tomasz Lewandowski, Partner",
+                  "photo": "assets/images/practice-criminal.jpg",
+                  "href": "praktyki/karne.html"
+                },
+                {
+                  "numeral": "03",
+                  "title": "Restrukturyzacja",
+                  "lead": "Ratujemy przedsiębiorstwa, gdy banki już odmawiają — nasz plan układowy daje firmom drugą szansę na wzrost.",
+                  "stat": "2 mld zł uratowanych aktywów",
+                  "signature": "— Piotr Wójcik, Partner",
+                  "photo": "assets/images/practice-restructuring.jpg",
+                  "href": "praktyki/restrukturyzacja.html"
+                },
+                {
+                  "numeral": "04",
+                  "title": "Prawo korporacyjne i M&A",
+                  "lead": "Transakcje M&A wymagają prawnika myślącego jak CFO — zamykamy przejęcia bez niespodzianek po stronie kupującego.",
+                  "stat": "50+ transakcji M&A",
+                  "signature": "— Julia Kowalczyk, Partner",
+                  "photo": "assets/images/practice-corporate.jpg",
+                  "href": "praktyki/korporacyjne.html"
+                }
+              ],
+              "editable": true
+            }
+          }
+        },
+        {
+          "id": "team",
+          "recipe": "team-editorial-white",
+          "fields": {
+            "sectionLabel": {
+              "type": "text",
+              "value": "Zespół",
+              "editable": false
+            },
+            "headlineMega": {
+              "type": "text",
+              "value": "ZESPÓŁ",
+              "editable": false
+            },
+            "leadIn": {
+              "type": "text",
+              "value": "Przede wszystkim Mazur to",
+              "editable": true
+            },
+            "wordReveal": {
+              "type": "list",
+              "value": [
+                "rozumieją biznes",
+                "nie odpuszczają",
+                "działają pod presją",
+                "myślą jak partnerzy",
+                "wygrywają"
+              ],
+              "editable": true
+            },
+            "partners": {
+              "type": "list",
+              "value": [
+                {
+                  "id": "anna-mazur",
+                  "name": "Anna Mazur",
+                  "title": "Partner Zarządzający",
+                  "practice": "Spory sądowe",
+                  "photo": "assets/images/partner-mazur.jpg",
+                  "phone": "+48 22 000 00 01",
+                  "email": "a.mazur@mazurlegal.pl"
+                },
+                {
+                  "id": "tomasz-lewandowski",
+                  "name": "Tomasz Lewandowski",
+                  "title": "Partner",
+                  "practice": "Prawo karne gospodarcze",
+                  "photo": "assets/images/partner-lewandowski.jpg",
+                  "phone": "+48 22 000 00 02",
+                  "email": "t.lewandowski@mazurlegal.pl"
+                },
+                {
+                  "id": "julia-kowalczyk",
+                  "name": "Julia Kowalczyk",
+                  "title": "Partner",
+                  "practice": "Prawo korporacyjne i M&A",
+                  "photo": "assets/images/partner-kowalczyk.jpg",
+                  "phone": "+48 22 000 00 03",
+                  "email": "j.kowalczyk@mazurlegal.pl"
+                }
+              ],
+              "editable": true
+            },
+            "moreHref": {
+              "type": "text",
+              "value": "zespol.html",
+              "editable": false
+            }
+          }
+        },
+        {
+          "id": "recognition",
+          "recipe": "recognition-wall",
+          "fields": {
+            "sectionLabel": {
+              "type": "text",
+              "value": "Wyróżnienia",
+              "editable": false
+            },
+            "items": {
+              "type": "list",
+              "value": [
+                { "name": "Legal 500", "year": "2024", "href": "https://www.legal500.com" },
+                { "name": "IFLR 1000", "year": "2023", "href": "https://www.iflr1000.com" },
+                { "name": "Rzeczpospolita Ranking Kancelarii", "year": "2023", "href": "https://www.rp.pl" },
+                { "name": "Chambers Europe", "year": "2022", "href": "https://chambers.com" }
+              ],
+              "editable": true
+            }
+          }
+        },
+        {
+          "id": "press",
+          "recipe": "press-cards-3d",
+          "fields": {
+            "sectionLabel": {
+              "type": "text",
+              "value": "Aktualności",
+              "editable": false
+            },
+            "headline": {
+              "type": "text",
+              "value": "Centrum prasowe",
+              "editable": true
+            },
+            "cards": {
+              "type": "list",
+              "value": [
+                {
+                  "category": "Prawo karne gospodarcze",
+                  "tags": "Aktualności",
+                  "date": "04 czerwca 2025",
+                  "title": "Mazur Wspólnicy doradcą w sprawie restrukturyzacji grupy energetycznej",
+                  "link": "https://mazurlegal.pl/aktualnosci/restrukturyzacja-energia"
+                },
+                {
+                  "category": "Restrukturyzacja",
+                  "tags": "Projekty, Aktualności",
+                  "date": "02 czerwca 2025",
+                  "title": "Sąd zatwierdził układ w postępowaniu prowadzonym przez kancelarię",
+                  "link": "https://mazurlegal.pl/aktualnosci/uklad-zatwierdzony"
+                },
+                {
+                  "category": "Prawo korporacyjne",
+                  "tags": "Aktualności",
+                  "date": "29 maja 2025",
+                  "title": "Mazur Wspólnicy wśród doradców transakcji M&A roku",
+                  "link": "https://mazurlegal.pl/aktualnosci/ma-roku"
+                }
+              ],
+              "editable": true
+            },
+            "moreHref": {
+              "type": "text",
+              "value": "aktualnosci.html",
+              "editable": false
+            }
+          }
+        },
+        {
+          "id": "contact",
+          "recipe": "contact-editorial-gradient",
+          "fields": {
+            "headline": {
+              "type": "text",
+              "value": "Sprawa nie czeka. My też nie.",
+              "editable": true
+            },
+            "submitLabel": {
+              "type": "cta",
+              "value": "Wyślij",
+              "editable": true
+            },
+            "emailDisplay": {
+              "type": "contact",
+              "value": "kontakt@mazurlegal.pl",
+              "editable": true
+            },
+            "emailHref": {
+              "type": "contact",
+              "value": "mailto:kontakt@mazurlegal.pl",
+              "editable": true
+            },
+            "phoneDisplay": {
+              "type": "contact",
+              "value": "+48 22 000 00 00",
+              "editable": true
+            },
+            "phoneHref": {
+              "type": "contact",
+              "value": "tel:+48220000000",
+              "editable": true
+            }
+          }
+        },
+        {
+          "id": "footer",
+          "recipe": "footer-editorial",
+          "fields": {
+            "wordmark": {
+              "type": "text",
+              "value": "MAZUR LEGAL",
+              "editable": false
+            },
+            "addressPrimary": {
+              "type": "text",
+              "value": "ul. Próżna 9, 00-107 Warszawa",
+              "editable": true
+            },
+            "email": {
+              "type": "contact",
+              "value": "kontakt@mazurlegal.pl",
+              "editable": true
+            },
+            "phone": {
+              "type": "contact",
+              "value": "+48 22 000 00 00",
+              "editable": true
+            },
+            "links": {
+              "type": "list",
+              "value": [
+                { "label": "O nas", "href": "o-kancelarii.html" },
+                { "label": "Praktyki", "href": "index.html#practices" },
+                { "label": "Zespół", "href": "zespol.html" },
+                { "label": "Aktualności", "href": "aktualnosci.html" },
+                { "label": "Polityka prywatności", "href": "privacy-policy.html" }
+              ],
+              "editable": true
+            },
+            "copyright": {
+              "type": "text",
+              "value": "© 2026 Mazur Wspólnicy. Wszelkie prawa zastrzeżone.",
+              "editable": true
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "collections": {
+    "posts": [],
+    "recognitions": []
+  }
+}

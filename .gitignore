@@ -1,0 +1,12 @@
+# Backupy ręczne
+*— kopia.*
+* — kopia.*
+www_mazur/
+SYSTEM-EDITORIAL.zip
+
+# Screenshoty i logi
+screenshots/
+serve.log
+
+# Claude Code
+.claude/

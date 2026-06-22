@@ -1,0 +1,1799 @@
+/* ============================================================
+   PACTA EDITORIAL — Design System
+   Archetyp: editorial-luxury law firm (Ario-class)
+   Dla: ambitne kancelarie, repozycjonowanie premium, młode zespoły
+   Energia: confident, intellectual, editorial, non-traditional
+   Anti-archetyp: Traditional Prestige (marmury, kolumny, złoto)
+   Referencje: Kinfolk, Monocle, editorial magazines
+   ============================================================
+
+   POMIARY (z reverse engineering ario.law):
+   - Background #020202, Text #FFFFFF (potwierdzone)
+   - Padding-inline 100px desktop (zmierzone)
+   - Bloki treści ~853-893px (zmierzone — wąskie, NIE full-width)
+   - Display font: estymacja clamp do ~14rem (DO POTWIERDZENIA)
+   - Hero copy 30px na mobile (potwierdzone)
+   - Scroll-color: rgba(255,255,255,0.25)→1 (estymacja w zmierzonym zakresie)
+   - GSAP + ScrollTrigger + Barba, native scroll, native cursor
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+/* Inter jako proxy dla ario-sans — geometric grotesque, dostępny.
+   Jeśli masz licencję na właściwy custom sans, podmień --font-display/-body. */
+
+:root {
+  /* --- Kolory: ekstremalny minimalizm --- */
+  --bg:               #020202;   /* czerń absolutna — tło całej strony */
+  --bg-elevated:      #0A0A0A;   /* ledwie jaśniejsze — sekcje wyróżnione */
+  --text:             #FFFFFF;   /* biel — tekst aktywny */
+  --text-dim:         rgba(255, 255, 255, 0.25);  /* scroll-coloring stan nieaktywny */
+  --text-muted:       rgba(255, 255, 255, 0.55);  /* captions, meta, secondary */
+  --text-faint:       rgba(255, 255, 255, 0.40);  /* numerale nav, daty */
+
+  --border:           rgba(255, 255, 255, 0.12);  /* subtelne linie */
+  --border-strong:    rgba(255, 255, 255, 0.30);
+
+  /* Jedyny kolor w całym systemie — blue gradient w sekcji kontaktu */
+  --accent-grad-from: #1E5BB8;
+  --accent-grad-to:   #4A90E2;
+  --accent:           #4A90E2;   /* link/hover gdy potrzebny akcent */
+
+  /* --- Typografia: jeden sans, cała siła w skali i wadze --- */
+  --font-display: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-body:    'Inter', system-ui, -apple-system, sans-serif;
+
+  /* --- Skala typograficzna — TYPOGRAFIA JAKO ARCHITEKTURA --- */
+  /* Display: gigantyczne słowa wypełniające viewport (Practice, TEAM, OPPORTUNITIES) */
+  --text-mega:    clamp(4rem, 15vw, 14rem);    /* 64px → 224px — signature words */
+  --text-display: clamp(2.5rem, 8vw, 7rem);    /* duże nagłówki sekcji */
+  --text-h1:      clamp(2rem, 5vw, 4rem);       /* hero statement */
+  --text-h2:      clamp(1.75rem, 4vw, 3rem);    /* section headline */
+  --text-h3:      clamp(1.25rem, 2.5vw, 1.75rem);
+  --text-lg:      1.25rem;     /* 20px — lead */
+  --text-base:    1rem;        /* 16px — body */
+  --text-sm:      0.875rem;    /* 14px — nav, caption */
+  --text-xs:      0.75rem;     /* 12px — numerale, meta */
+
+  /* --- Wagi — od light po black, kontrast jest narzędziem --- */
+  --weight-normal:   400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+  --weight-extrabold:800;
+  --weight-black:    900;
+
+  /* --- Line heights — display bardzo ciasny --- */
+  --leading-none:    0.95;   /* mega display words */
+  --leading-tight:   1.05;   /* duże nagłówki */
+  --leading-snug:    1.2;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.65;
+
+  /* --- Letter spacing --- */
+  --tracking-mega:   -0.04em;  /* gigantyczne słowa — bardzo ciasno */
+  --tracking-tight:  -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide:   0.02em;
+  --tracking-caps:   0.08em;   /* nav numerale, labele */
+
+  /* --- Spacing (z audytu: xs:8 sm:16 md:32 lg:64 xl:128) --- */
+  --space-xs:  0.5rem;    /* 8 */
+  --space-sm:  1rem;      /* 16 */
+  --space-md:  2rem;      /* 32 */
+  --space-lg:  4rem;      /* 64 */
+  --space-xl:  8rem;      /* 128 */
+  --space-2xl: 12rem;     /* 192 — sekcje editorial mają DUŻO oddechu */
+
+  /* --- Layout (zmierzone) --- */
+  --pad-inline:     100px;     /* desktop — stała rama boczna */
+  --pad-inline-mob: 24px;      /* mobile */
+  --content-width:  880px;     /* wąskie bloki treści — NIE full width */
+  --container-max:  1600px;    /* zewnętrzna granica */
+
+  /* --- Radius: ZERO. Bezwzględnie. --- */
+  --radius: 0;
+
+  /* --- Shadow: NONE. Editorial nie używa cieni. --- */
+  --shadow: none;
+
+  /* --- Motion (GSAP defaults dla tego typu) --- */
+  --dur-fast:   0.4s;
+  --dur-med:    0.6s;
+  --dur-slow:   1s;
+  --ease:       cubic-bezier(0.16, 1, 0.3, 1);   /* power3.out equivalent */
+  --stagger:    0.06s;
+
+  /* #6 Jeden gest wejścia treści: lift 14px + ten sam easing/dur.
+     Kierunek (oś) to JEDYNA modulacja per-lista (#10). */
+  --reveal-lift: 14px;
+
+  /* Górny padding nagłówków podstron (pod fixed nav). Responsywny —
+     desktop daje editorial oddech, mobile kasuje nadmiarowy margines. */
+  --interior-top: calc(80px + var(--space-xl));
+}
+
+/* Mobile: mniejszy nav (64px) + ciaśniejszy oddech nagłówka podstrony */
+@media (max-width: 768px) {
+  :root { --interior-top: calc(64px + var(--space-md)); }
+}
+
+/* ─── Reset / base ─────────────────────────────────────────── */
+
+* { box-sizing: border-box; }
+
+html {
+  /* Dekoracyjne mega-teksty (section-mega, footer-wordmark) celowo wychodzą poza
+     ramę. iOS Safari je przycina; Android Chrome tworzył z nich poziomy scroll.
+     overflow-x: clip wyrównuje Android — nie tworzy scroll-kontenera, więc
+     pionowy position:sticky (sekcja praktyk) działa bez zmian. */
+  overflow-x: clip;
+}
+
+body {
+  margin: 0;
+  overflow-x: clip;          /* j.w. — podwójne zabezpieczenie, gdy body jest scroll-kontenerem */
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  font-weight: var(--weight-normal);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Typografia ───────────────────────────────────────────── */
+
+.f-mega {
+  font-family: var(--font-display);
+  font-size: var(--text-mega);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-none);
+  letter-spacing: var(--tracking-mega);
+  margin: 0;
+}
+
+.f-display {
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  margin: 0;
+}
+
+.f-h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-h1);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  margin: 0;
+}
+
+.f-h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-h2);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-tight);
+  margin: 0;
+}
+
+.f-h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
+  margin: 0;
+}
+
+.f-lead {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-normal);
+  line-height: var(--leading-normal);
+  color: var(--text);
+}
+
+.f-body {
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  color: var(--text-muted);
+}
+
+.f-caption {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  line-height: var(--leading-normal);
+}
+
+.f-meta {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+
+/* --- Numeral (nav 01-05, sekcje) — Ario signature --- */
+.f-numeral {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-normal);
+  color: var(--text-faint);
+  letter-spacing: var(--tracking-caps);
+  display: block;
+}
+
+/* ─── Scroll-driven text coloring (GSAP ScrollTrigger) ─────── */
+/* Tekst startuje dim, rozjaśnia się przy scroll. JS dodaje .is-lit */
+
+.scroll-reveal-text {
+  color: var(--text-dim);
+  transform: translateY(var(--reveal-lift));   /* #6 jeden gest: color-light + lift */
+  transition: color var(--dur-med) var(--ease),
+              transform var(--dur-med) var(--ease);
+}
+.scroll-reveal-text.is-lit {
+  color: var(--text);
+  transform: none;
+}
+/* Hero statement scrubuje transform inline (JS) — nie nakładaj lift bazowego */
+.hero-statement { transform: none; }
+
+/* Per-word reveal (sekcja Team: "love the law / take action / ...") */
+.word-reveal > span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.4em);
+  transition: opacity var(--dur-med) var(--ease),
+              transform var(--dur-med) var(--ease);
+}
+.word-reveal.is-visible > span {
+  opacity: 1;
+  transform: none;
+}
+
+/* ─── Layout ───────────────────────────────────────────────── */
+
+.container {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--pad-inline);
+}
+
+@media (max-width: 768px) {
+  .container { padding-inline: var(--pad-inline-mob); }
+}
+
+/* Wąski blok treści — editorial column, NIE full width */
+.content-col {
+  max-width: var(--content-width);
+}
+
+/* ─── Manifesto — duże oświetlane zdania (scroll-color narracja) ──
+   Statements rozświetlają się sekwencyjnie w trakcie scrolla (każdy
+   .scroll-reveal-text dim→white gdy wchodzi w viewport). Duży gap =
+   reveal jeden po drugim + editorial oddech. Używane na o-kancelarii. */
+.manifesto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  max-width: 62rem;
+}
+.manifesto-line {
+  font-family: var(--font-display);
+  font-size: var(--text-h2);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  margin: 0;
+}
+/* akcent w zdaniu — biały od razu (gdy reszta dim), prowadzi reveal.
+   Kluczowa fraza świeci pierwsza, reszta linii dopala się przy scrollu. */
+.manifesto-line em {
+  font-style: normal;
+  color: var(--text);
+}
+@media (max-width: 768px) {
+  .manifesto { gap: var(--space-lg); }
+}
+
+/* ─── About facts — mega-word watermark + tekst na wierzchu ──────
+   „DLA KOGO" / „ZASIĘG" są tłem (jak MAZUR/PRASA/UZNANIE), prawe,
+   przezroczyste. Litery wpadają jedna po jednej przy scrollu.
+   Tekst „Działamy..." i „Jesteśmy z Warszawy..." na wierzchu, lewy. */
+.about-fact {
+  position: relative;
+  overflow: clip;
+  padding-top: var(--space-md);                   /* 2rem = 32px */
+  padding-bottom: calc(var(--space-sm) + 0.3em);  /* 1rem + margines na ogonki Ę */
+  border-top: 1px solid var(--border);
+  min-height: 5rem;
+}
+.about-fact:last-child { border-bottom: 1px solid var(--border); }
+
+/* mega-watermark: mniejszy font → nie wchodzi na tekst */
+.about-fact-bg {
+  position: absolute;
+  right: var(--pad-inline);
+  bottom: 0.18em;   /* nie ujemne — ogonki Ę nie obcięte przez clip */
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 9vw, 10rem);
+  font-weight: var(--weight-black);
+  line-height: 0.85;
+  letter-spacing: var(--tracking-mega);
+  color: rgba(255, 255, 255, 0.09);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* litery: wolniej (0.6s), startują niżej (0.2em) — bardziej „ktoś pisze" */
+.about-fact-bg span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.2em);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.about-fact.is-visible .about-fact-bg span {
+  opacity: 1;
+  transform: none;
+}
+
+/* tekst — lewy blok, nie zachodzi na watermark (który zaczyna ~590px od lewej) */
+.about-body {
+  position: relative;
+  z-index: 1;
+  max-width: 26rem;   /* ~416px — watermark od ~590px, odstęp ~175px */
+  font-size: clamp(1.5rem, 2.2vw, 2rem);
+  line-height: 1.3;
+  letter-spacing: var(--tracking-tight);
+  font-weight: var(--weight-normal);
+  color: var(--text);
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .about-fact-bg {
+    font-size: clamp(2.5rem, 16vw, 5rem);
+    right: var(--pad-inline-mob);
+    bottom: 0.14em;
+  }
+  .about-body { max-width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-fact-bg span { opacity: 1; transform: none; transition: none; }
+}
+
+/* Sekcja — editorial oddech pionowy (ujednolicony rytm między sekcjami).
+   Zredukowany z 2xl→xl: zachowuje premium, poprawia gęstość informacji. */
+.section {
+  padding-block: var(--space-xl);
+}
+@media (max-width: 768px) {
+  .section { padding-block: var(--space-lg); }
+}
+
+.bg-base     { background: var(--bg); }
+.bg-elevated { background: var(--bg-elevated); }
+
+/* ─── Broken / asymmetric grid helpers ─────────────────────── */
+/* Editorial layout — elementy celowo łamią symetrię */
+
+.grid-editorial {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--space-md);
+}
+.col-left  { grid-column: 1 / 7; }
+.col-right { grid-column: 8 / 13; }
+.col-narrow{ grid-column: 1 / 5; }
+.col-wide  { grid-column: 1 / 10; }
+.col-offset{ grid-column: 4 / 11; }   /* przesunięcie — łamie symetrię */
+
+@media (max-width: 768px) {
+  .grid-editorial { grid-template-columns: 1fr; }
+  .col-left, .col-right, .col-narrow, .col-wide, .col-offset {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ─── Navigation ───────────────────────────────────────────── */
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 80px;
+  padding-inline: var(--pad-inline);
+}
+@media (max-width: 768px) {
+  .nav-inner { padding-inline: var(--pad-inline-mob); height: 64px; }
+}
+
+.nav-logo {
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-lg);
+  letter-spacing: var(--tracking-wide);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-links a {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-normal);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease);
+}
+.nav-links a:hover,
+.nav-links a[aria-current="page"] {
+  color: var(--text);
+}
+
+/* ─── Buttons / CTA ────────────────────────────────────────── */
+/* Editorial: text + line, nie solid buttons */
+
+.btn-text {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text);
+  text-decoration: none;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  padding-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--border-strong);
+  transition: border-color var(--dur-fast) var(--ease),
+              gap var(--dur-fast) var(--ease);
+  cursor: pointer;
+  background: none;
+  border-top: none; border-left: none; border-right: none;
+}
+.btn-text:hover {
+  border-bottom-color: var(--text);
+  gap: var(--space-md);
+}
+
+/* "More +" pattern z Ario */
+.btn-more {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text);
+  text-decoration: none;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+.btn-more::after {
+  content: '+';
+  font-size: 1.2em;
+  transition: transform var(--dur-fast) var(--ease);
+}
+.btn-more:hover::after {
+  transform: rotate(90deg);
+}
+
+/* ─── Practice item (z twarzą Head of Practice) ────────────── */
+
+.practice-item {
+  display: grid;
+  grid-template-columns: 5rem 1fr auto;
+  gap: var(--space-md);
+  align-items: start;
+  padding-block: var(--space-lg);
+  border-top: 1px solid var(--border);
+}
+.practice-num {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  letter-spacing: var(--tracking-caps);
+}
+.practice-title {
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: var(--weight-semibold);
+  color: var(--text);
+}
+.practice-head {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+@media (max-width: 768px) {
+  .practice-item { grid-template-columns: 1fr; gap: var(--space-sm); }
+}
+
+/* ─── Recognition wall (ranking + rok) ─────────────────────── */
+/* Z Ario (klatka 60): wiersze "Rok | Nazwa rankingu | +", nie grid kafelków */
+
+.recognition-row {
+  display: flex;
+  flex-direction: column;
+}
+.recognition-item {
+  display: grid;
+  grid-template-columns: 6rem 1fr auto;
+  align-items: center;
+  gap: var(--space-md);
+  padding-block: var(--space-md);
+  border-top: 1px solid var(--border);
+  text-decoration: none;
+  transition: padding-left var(--dur-fast) var(--ease);
+}
+.recognition-item:last-child {
+  border-bottom: 1px solid var(--border);
+}
+.recognition-item:hover {
+  padding-left: var(--space-sm);
+}
+.recognition-year {
+  font-size: var(--text-h3);
+  font-weight: var(--weight-bold);
+  color: var(--text);
+}
+.recognition-name {
+  font-size: var(--text-h3);
+  font-weight: var(--weight-bold);
+  color: var(--text);
+}
+.recognition-plus {
+  font-size: var(--text-h3);
+  color: var(--text-faint);
+  transition: transform var(--dur-fast) var(--ease);
+}
+.recognition-item:hover .recognition-plus {
+  transform: rotate(90deg);
+  color: var(--text);
+}
+
+@media (max-width: 768px) {
+  .recognition-item {
+    grid-template-columns: 4rem 1fr auto;
+    gap: var(--space-sm);
+  }
+  .recognition-year, .recognition-name { font-size: var(--text-lg); }
+}
+
+/* ─── Trust numbers (10+, 30+) ─────────────────────────────── */
+
+.trust-number {
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-none);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text);
+}
+.trust-label {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+/* ─── Timeline (oś lat 2015→2024) ──────────────────────────── */
+
+.timeline-years {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--space-md);
+}
+.timeline-year {
+  font-size: var(--text-base);
+  color: var(--text-faint);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease);
+}
+.timeline-year.is-active {
+  color: var(--text);
+  font-weight: var(--weight-bold);
+}
+.timeline-big {
+  font-family: var(--font-display);
+  font-size: var(--text-mega);
+  font-weight: var(--weight-black);
+  line-height: var(--leading-none);
+  letter-spacing: var(--tracking-mega);
+  color: var(--text);
+}
+
+/* ─── Contact + Footer — jeden ciągły blue gradient ───────── */
+/* POTWIERDZONE w nagraniu klatka 80: contact i footer to jedno tło */
+
+.contact-footer-wrap {
+  background: linear-gradient(180deg, var(--accent-grad-from) 0%, #1a4a9a 60%, #0d3070 100%);
+  color: var(--text);
+}
+
+/* ─── #1 Press→Contact climax — niebieski wzbiera od dołu ─────
+   Czarny overlay nad sekcją Contact cofa się od dołu (scroll-driven JS),
+   odsłaniając blue gradient. Nagłówek na fali reveal. */
+#contact { position: relative; }
+#contact > .container { position: relative; z-index: 2; }
+.contact-rise {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);             /* czerń — kontynuacja Press */
+  z-index: 1;
+  pointer-events: none;
+  /* startowo pełne pokrycie; JS klipuje od dołu (inset bottom %) */
+  clip-path: inset(0 0 0 0);
+  will-change: clip-path;
+}
+@media (prefers-reduced-motion: reduce) {
+  .contact-rise { display: none; }
+}
+
+/* ─── #3 / #7 Mega-słowa sekcji — faint watermark (nić sygnatur) ──
+   Subtelny gigantyczny napis za nagłówkiem; rośnie i blaknie na scroll
+   (initMegaGrow). Czarne sekcje → biały, bardzo niska opacity. */
+.section-mega-clip { position: relative; overflow: clip; }
+.section-mega-clip > .container { position: relative; z-index: 1; }
+.section-mega {
+  position: absolute;
+  top: var(--space-lg);
+  left: var(--pad-inline);
+  margin: 0;
+  z-index: 0;
+  color: var(--text);
+  opacity: 0.06;                 /* baza (reduced-motion); JS skaluje przez data-mega-max */
+  line-height: 0.8;
+  letter-spacing: var(--tracking-mega);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  transform-origin: left top;
+  will-change: transform, opacity;
+}
+@media (max-width: 768px) {
+  .section-mega { left: var(--pad-inline-mob); top: var(--space-md); }
+}
+
+/* ARIO LAW gigantyczne na dole footera — dekoracja */
+.footer-wordmark {
+  font-family: var(--font-display);
+  font-size: var(--text-mega);
+  font-weight: var(--weight-black);
+  line-height: 0.85;
+  letter-spacing: var(--tracking-mega);
+  color: rgba(255,255,255,0.15);  /* bardzo subtelne — dekoracja */
+  overflow: hidden;
+  user-select: none;
+  pointer-events: none;
+}
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
+  padding: var(--space-sm) 0;
+  outline: none;
+}
+.contact-form input::placeholder,
+.contact-form textarea::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+.contact-form input:focus,
+.contact-form textarea:focus {
+  border-bottom-color: var(--text);
+}
+
+/* ─── Practice card — dokument-style (klatka 8, 10) ────────── */
+/* Biała kartka z numeralem + nazwa CAPS + tabela Head/Team */
+/* Obok: B&W zdjęcie. Czarne tło otaczające. */
+
+.practice-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  background: var(--bg);
+}
+.practice-card-doc {
+  background: #FFFFFF;
+  color: #000000;
+  padding: var(--space-lg) var(--space-md);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+/* Krzyż (linie poziome + pionowe) WYŁĄCZONY — kolidował z editorial flow.
+   Praktyki na praktyki.html używają teraz .practice-index-row (editorial
+   directory), nie kart-dokumentów z tabelą. */
+.practice-card-num {
+  font-size: clamp(4rem, 10vw, 8rem);
+  font-weight: var(--weight-black);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: #000000;
+}
+.practice-card-name {
+  font-size: var(--text-h3);
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #000000;
+  text-align: center;
+}
+.practice-card-table {
+  border-top: 1px solid rgba(0,0,0,0.15);
+  font-size: var(--text-sm);
+  color: #000000;
+}
+.practice-card-table-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  padding: var(--space-xs) 0;
+}
+.practice-card-table-label { color: rgba(0,0,0,0.5); text-align: right; padding-right: var(--space-sm); }
+.practice-card-photo {
+  background: #888;
+  overflow: hidden;
+}
+.practice-card-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(100%);
+}
+
+@media (max-width: 768px) {
+  .practice-card { grid-template-columns: 1fr; }
+  .practice-card-photo { height: 300px; }
+}
+
+/* Practice card — wjazd z rotacją 3D (Ario klatka 8, 10) */
+/* To jest brakująca animacja: karty wlatują obrócone, jak dokumenty */
+.practice-card.reveal-fade {
+  opacity: 0;
+  transform: perspective(1200px) rotateY(12deg) translateY(40px);
+  transition: opacity 0.8s var(--ease),
+              transform 0.8s var(--ease);
+}
+.practice-card.reveal-fade.is-visible {
+  opacity: 1;
+  transform: perspective(1200px) rotateY(0) translateY(0);
+}
+.practice-card.reveal-fade:nth-child(2) { transition-delay: 0.12s; }
+.practice-card.reveal-fade:nth-child(3) { transition-delay: 0.24s; }
+.practice-card.reveal-fade:nth-child(4) { transition-delay: 0.36s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .practice-card.reveal-fade {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ─── Partner bio row (zespol.html — dark bg) ───────────────────
+   Imię + tytuł lewo, bio prawo. Border jak recognition-wall.
+   f-h2 dla imienia (~3rem), f-lead dla tekstu (1.25rem). */
+.partner-bio {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: var(--space-xl);
+  padding-block: var(--space-xl);
+  border-top: 1px solid var(--border);
+  align-items: baseline;
+}
+.partner-bio:last-of-type { border-bottom: 1px solid var(--border); }
+.partner-bio-head .f-h2 { margin: 0; }
+.partner-bio-body {
+  font-size: var(--text-lg);        /* 1.25rem = 20px — czytelny, nie mikro */
+  line-height: var(--leading-relaxed);
+  color: var(--text-muted);
+  margin: 0;
+}
+@media (max-width: 768px) {
+  .partner-bio {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+    padding-block: var(--space-lg);
+  }
+}
+
+/* ─── Practice index row (praktyki.html — editorial directory) ──
+   Statyczny katalog praktyk: ten sam głos co flip na homepage
+   (zdanie-hak + stat + sygnatura), ale scannable + linkowalny.
+   Cienka linia rozdziela wpisy jak w recognition-wall. */
+.practice-index-row {
+  border-top: 1px solid var(--border);
+  padding-block: var(--space-xl);
+}
+.practice-index-row .col-left h2 {
+  color: var(--text);
+  transition: color var(--dur-fast) var(--ease);
+}
+.practice-index-row a:hover h2 {
+  color: var(--text-muted);
+}
+@media (max-width: 768px) {
+  .practice-index-row { padding-block: var(--space-lg); }
+  /* mniejszy odstęp między tekstem a odpowiadającym mu zdjęciem */
+  .practice-index-row .col-right { margin-top: var(--space-md); }
+}
+
+/* ─── MORE+ split button (klatka 6, 11) ────────────────────── */
+/* Lewa: biała z tekstem. Prawa: blue gradient. Razem = split. */
+
+.btn-more-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  text-decoration: none;
+  overflow: hidden;
+}
+.btn-more-split-text {
+  background: #FFFFFF;
+  color: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-h3);
+  font-weight: var(--weight-bold);
+  padding: var(--space-lg);
+  letter-spacing: 0.02em;
+}
+/* #4 — neutralny panel (NIE niebieski): „niebieski tylko w contact".
+   Szary gradient nie psuje kurtyny Practices→Team ani climaxu Press→Contact. */
+.btn-more-split-grad {
+  background: linear-gradient(135deg, #161616, #2b2b2b);
+  min-height: 200px;
+}
+
+/* ─── Team section — BIAŁE tło (klatki 13-22) ──────────────── */
+/* Cała sekcja Team ma background: #FFFFFF, nie czarny. */
+/* Kontrast: czarny hero → biały team → czarny recognition */
+
+.section-white {
+  background: #FFFFFF;
+  color: #000000;
+}
+.section-white .f-mega,
+.section-white .f-display,
+.section-white .f-h1,
+.section-white .f-h2,
+.section-white .f-h3 {
+  color: #000000;
+}
+.section-white .scroll-reveal-text {
+  color: rgba(0,0,0,0.2);
+}
+.section-white .scroll-reveal-text.is-lit {
+  color: #000000;
+}
+/* Overrides partner-trigger na białym tle (3 klasy → wyższa specificity
+   niż bazowe .partner-trigger .partner-name które ma 2 klasy) */
+.section-white .partner-trigger .partner-name {
+  font-size: var(--text-h3);
+  font-weight: var(--weight-bold);
+  color: #000000;
+}
+.section-white .partner-trigger .partner-title {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: var(--text-sm);
+}
+.section-white .partner-trigger img {
+  filter: grayscale(100%);
+}
+.section-white .partner-trigger:hover img {
+  filter: grayscale(0%);
+}
+/* team-grid: 3 równe kolumny zamiast auto-fill minmax(180px) */
+.section-white .team-grid {
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-lg);
+}
+
+/* ─── Partner panel (klatka 70 — CLOSE X) ──────────────────── */
+/* Kliknięcie na partnera otwiera panel: duże zdjęcie + dane */
+
+.partner-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: #FFFFFF;
+  display: grid;
+  grid-template-columns: 40% 1fr;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-med) var(--ease);
+}
+.partner-panel.is-open {
+  opacity: 1;
+  pointer-events: all;
+}
+.partner-panel-photo {
+  background: #111;
+  overflow: hidden;
+}
+.partner-panel-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;   /* twarz u góry — nie ucinana w kadrze panelu */
+}
+.partner-panel-info {
+  padding: var(--space-2xl) var(--space-xl);
+  color: #000000;
+  position: relative;
+}
+.partner-panel-close {
+  position: absolute;
+  top: var(--space-lg);
+  right: var(--space-lg);
+  z-index: 1;
+  font-size: var(--text-h3);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: #000000;
+}
+.partner-panel-close::after { content: ' ×'; }
+
+/* ─── Mobile: Team grid + Partner panel ────────────────────────
+   Na desktopie Team to 3-kolumnowa siatka, panel to split 40%/1fr.
+   Oba layouty wychodziły poza ekran na mobile:
+   - team-grid repeat(3,1fr): 1fr nie kurczy się poniżej min-content
+     nazwisk → siatka rosła do 507px (3. partner wypadał za ekran).
+   - partner-panel 40%/1fr: kolumna z danymi ucinała telefon/email. */
+@media (max-width: 768px) {
+  .section-white .team-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+  /* Panel partnera na mobile: flex stack, scrolluje tylko info.
+     CLOSE jest teraz bezpośrednim dzieckiem .partner-panel (position:fixed),
+     więc position:absolute (dziedziczone z bazy) kotwiczy go do viewportu.
+     Eliminuje fixed-inside-overflow — bug na iOS Safari i Android Chrome. */
+  .partner-panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .partner-panel-photo {
+    flex: 0 0 50vh;
+    height: 50vh;
+    width: 100%;
+  }
+  .partner-panel-info {
+    flex: 1 1 0;
+    min-height: 0;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-y: scroll;
+    overflow-x: hidden;                /* blokuje boczny pan: scroll na osi Y promuje X do auto */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    padding: var(--space-lg) var(--pad-inline-mob) calc(var(--space-xl) + env(safe-area-inset-bottom, 0px));
+  }
+  /* CLOSE: position:absolute (z bazy) względem .partner-panel = kotwica do viewportu.
+     env(safe-area-inset-top) obsługuje notch i pasek nawigacji iOS. */
+  .partner-panel-close {
+    top: calc(env(safe-area-inset-top, 0px) + var(--space-sm));
+    right: var(--pad-inline-mob);
+    background: rgba(255, 255, 255, 0.92);
+    padding: var(--space-xs) var(--space-sm);
+    line-height: 1;
+  }
+}
+
+/* ─── Footer (teraz część contact-footer-wrap) ──────────────── */
+
+.footer {
+  /* background handled by .contact-footer-wrap */
+  color: rgba(255,255,255,0.7);
+  padding-block: var(--space-lg);
+}
+
+/* ─── #9 Chapter indicator — trwała nić rozdziałów 01-05 ───── */
+.chapter-nav {
+  position: fixed;
+  left: 36px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  mix-blend-mode: difference;   /* auto-kontrast: biały na czerni, czarny na bieli */
+}
+.chapter-nav a { text-decoration: none; display: block; }
+.chapter-num {
+  display: block;
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-caps);
+  color: #FFFFFF;               /* przez difference → kontrast względem tła */
+  opacity: 0.35;
+  font-variant-numeric: tabular-nums;
+  transition: opacity var(--dur-fast) var(--ease);
+}
+.chapter-nav a:hover .chapter-num { opacity: 0.7; }
+.chapter-nav a.is-active .chapter-num { opacity: 1; }
+.chapter-nav a.is-active .chapter-num::after {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 1px;
+  margin-top: 5px;
+  background: #FFFFFF;
+}
+@media (max-width: 1100px) {
+  .chapter-nav { display: none; }
+}
+
+/* ─── Skip link / a11y ─────────────────────────────────────── */
+
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  background: var(--text);
+  color: var(--bg);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--text-sm);
+  text-decoration: none;
+  z-index: 9999;
+}
+.skip-link:focus { top: 0; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+/* ─── Animacje JS-driven (klasy synchronizowane z animations-editorial.js) ─── */
+
+/* Section fade reveal (.reveal-fade → .is-visible) — jeden gest #6 */
+.reveal-fade {
+  opacity: 0;
+  transform: translateY(var(--reveal-lift));
+  transition: opacity var(--dur-med) var(--ease),
+              transform var(--dur-med) var(--ease);
+}
+.reveal-fade.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Stagger list (.stagger-list > dzieci → .is-visible) — ten sam gest #6,
+   stagger = modulacja czasowa listy, nie osobny efekt */
+.stagger-list > * {
+  opacity: 0;
+  transform: translateY(var(--reveal-lift));
+  transition: opacity var(--dur-med) var(--ease),
+              transform var(--dur-med) var(--ease);
+}
+.stagger-list > *.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* #10 Modulacja osi per-lista — ten sam gest, inny kierunek.
+   Recognition wjeżdża od lewej; Press (reveal-fade) zostaje od dołu. */
+.stagger-list.from-left > * {
+  transform: translateX(calc(-1 * var(--reveal-lift) - 10px));
+}
+.stagger-list.from-left > *.is-visible {
+  transform: none;
+}
+
+/* Counter — bazowy styl, JS podmienia textContent */
+.count-up {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Partner trigger (klikalna karta) */
+.partner-trigger {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  text-align: left;
+}
+.partner-trigger img {
+  width: 100%;
+  height: auto;          /* bez tego HTML height="1448" bije aspect-ratio */
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: top center;
+  filter: grayscale(100%);
+  transition: filter var(--dur-fast) var(--ease);
+}
+.partner-trigger:hover img {
+  filter: grayscale(0%);
+}
+.partner-trigger .partner-name {
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  color: var(--text);
+}
+.partner-trigger .partner-title {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+
+/* Blokada scrolla gdy panel/menu otwarte */
+.no-scroll {
+  overflow: hidden;
+}
+
+/* Mobile menu overlay */
+#mobile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-med) var(--ease);
+}
+#mobile-menu.is-open {
+  opacity: 1;
+  pointer-events: all;
+}
+/* Linki menu mobilnego — białe display, numeral faint (NIE domyślny niebieski) */
+#mobile-menu a {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  color: var(--text);
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-size: var(--text-h2);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  transition: color var(--dur-fast) var(--ease);
+}
+#mobile-menu a:hover { color: var(--text-muted); }
+#mobile-menu a .f-numeral { font-size: var(--text-xs); }
+#menu-close {
+  position: absolute;
+  top: var(--space-lg);
+  right: var(--pad-inline-mob);
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: var(--text-h2);
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* Form success message */
+#form-success {
+  display: none;
+}
+#form-success.is-visible {
+  display: block;
+}
+
+/* ─── Hero layout ──────────────────────────────────────────── */
+
+.hero-editorial {
+  position: relative;
+  min-height: 100vh;
+  padding-top: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: clip;   /* nie hidden — clip nie tworzy scroll-kontenera,
+                       rosnący wordmark nie jest „przycinany" przez scroll-port */
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+  align-items: center;
+  padding-inline: var(--pad-inline);
+  flex: 1;
+}
+.hero-statement {
+  max-width: var(--content-width);
+  will-change: transform, opacity;
+  /* #5 WEJŚCIE = color-reveal (animowany kolor). transform/opacity są
+     scrubowane per-frame przez JS → bez transition, by scrub był ostry.
+     Tylko kolor dostaje transition (faza wejścia, sekwencyjnie). */
+  transition: color var(--dur-slow) var(--ease);
+  transform-origin: left center;
+}
+.hero-video {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  will-change: transform;
+  transition: none;
+}
+.hero-video video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 250ms ease;
+}
+.hero-wordmark {
+  padding-inline: var(--pad-inline);
+  color: var(--text);
+  line-height: 0.8;
+  margin-top: var(--space-lg);
+  will-change: transform, opacity;
+  transition: none;
+  transform-origin: left bottom;
+}
+.hero-cta {
+  margin: var(--space-lg) var(--pad-inline) 0;
+  align-self: flex-start;
+  will-change: opacity;
+  transition: none;
+}
+@media (max-width: 768px) {
+  .hero-grid { grid-template-columns: 1fr; padding-inline: var(--pad-inline-mob); }
+  .hero-wordmark, .hero-cta { padding-inline: var(--pad-inline-mob); }
+}
+
+/* ─── Stats row (10+, 30+) ─────────────────────────────────── */
+
+.stats-row {
+  display: flex;
+  gap: var(--space-xl);
+  margin-block: var(--space-lg);
+  flex-wrap: wrap;
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+@media (max-width: 768px) {
+  .stats-row {
+    gap: var(--space-md);
+    margin-block: var(--space-md);
+  }
+}
+
+/* ─── Team grid (partner cards) ────────────────────────────── */
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-md);
+  margin-block: var(--space-xl);
+}
+
+/* ─── Press cards (3D rotated) ─────────────────────────────── */
+
+.press-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-lg);
+  margin-block: var(--space-xl);
+}
+.press-card {
+  display: block;
+  text-decoration: none;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  padding: var(--space-md);
+  transform: translateY(0);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.press-card:hover {
+  transform: translateY(-8px);
+  background: #FFFFFF;
+  border-color: #FFFFFF;
+  transition-delay: 0s;
+}
+/* Reveal + stagger — #10 Press wjeżdża OD DOŁU (lift), inaczej niż
+   Recognition (od lewej). Jawny transform bije .press-card translateY(0). */
+.press-card.reveal-fade {
+  transform: translateY(calc(var(--reveal-lift) + 10px));
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.press-card.reveal-fade.is-visible {
+  transform: none;
+}
+.press-card.reveal-fade:nth-child(2) { transition-delay: 0.1s; }
+.press-card.reveal-fade:nth-child(3) { transition-delay: 0.2s; }
+.press-card.reveal-fade.is-visible   { transition-delay: 0s; }
+
+.press-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: baseline;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--space-sm);
+  margin-bottom: var(--space-md);
+  transition: border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.press-card:hover .press-card-head {
+  border-bottom-color: rgba(0, 0, 0, 0.12);
+}
+
+.press-card-cat {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  transform: translateX(-4px);
+  transition: color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.press-card:hover .press-card-cat {
+  color: rgba(0, 0, 0, 0.65);
+  transform: translateX(0);
+}
+
+.press-card-tags {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  transform: translateX(-4px);
+  transition: color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.press-card:hover .press-card-tags {
+  color: rgba(0, 0, 0, 0.45);
+  transform: translateX(0);
+}
+
+.press-card-date {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  margin-left: auto;
+  transform: translateX(-4px);
+  transition: color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.press-card:hover .press-card-date {
+  color: rgba(0, 0, 0, 0.45);
+  transform: translateX(0);
+}
+
+.press-card-title {
+  font-size: var(--text-h3);
+  font-weight: var(--weight-bold);
+  color: var(--text);
+  line-height: var(--leading-snug);
+  transition: color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.press-card:hover .press-card-title {
+  color: #000000;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .press-card { transform: none; background: var(--bg-elevated); }
+  .press-card-cat, .press-card-tags, .press-card-date { transform: none; }
+}
+
+/* ─── Nav burger + logo subtext ────────────────────────────── */
+
+.nav-burger {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text);
+  /* większa, zawsze widoczna ikona ☰ + tap-target 48×48 (UX min 44px) */
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  width: 48px;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  margin-right: -8px;   /* wyrównanie optycznej krawędzi glifu do ramki nav */
+}
+.nav-logo-sub {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-normal);
+  letter-spacing: var(--tracking-caps);
+  color: var(--text-muted);
+}
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .nav-burger { display: flex; }
+}
+
+/* ─── Footer columns + copyright ───────────────────────────── */
+
+.footer-cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-lg);
+}
+.footer-cols a,
+.footer-cols p {
+  display: block;
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-xs);
+}
+.footer-cols a:hover { color: var(--text); }
+.footer-copyright {
+  font-size: var(--text-xs);
+  color: rgba(255,255,255,0.5);
+  padding-inline: var(--pad-inline);
+  margin-top: var(--space-md);
+}
+
+/* ─── Partner contacts (w panelu) ──────────────────────────── */
+
+.partner-contacts {
+  margin-top: var(--space-md);
+}
+.partner-contacts dt {
+  font-size: var(--text-xs);
+  color: rgba(0,0,0,0.5);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  margin-top: var(--space-sm);
+}
+.partner-contacts dd {
+  margin: 0;
+  font-size: var(--text-base);
+  overflow-wrap: anywhere;       /* długi email nie rozpycha panelu w poziomie */
+  word-break: break-word;
+}
+.partner-contacts a {
+  color: #000;
+  text-decoration: underline;
+}
+
+/* ─── Practice card-flip (scroll-driven rotateY) ───────────── */
+
+/* ─── Practice tabs (klikalne taby + flip animacja) ─────────── */
+
+.practice-tabs-section {
+  padding-block: var(--space-xl);
+  background: var(--bg);
+  transition: opacity 0.25s ease;
+}
+.practice-tabs-nav {
+  display: flex;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--space-md);
+}
+.practice-tab {
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: var(--weight-bold);
+  color: var(--text-faint);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 0 var(--space-xs) 0;
+  position: relative;
+  letter-spacing: var(--tracking-caps);
+  transition: color 0.25s ease, text-shadow 0.25s ease;
+}
+.practice-tab::after {
+  display: none;
+}
+.practice-tab:hover {
+  color: var(--text);
+  text-shadow: 0 0 40px rgba(255, 255, 255, 0.6);
+}
+.practice-tab.is-active {
+  color: var(--text);
+  text-shadow: 0 0 60px rgba(255, 255, 255, 0.9);
+}
+.practice-tab-indicator {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #FFFFFF;
+  transition: left 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.practice-tabs-grid {
+  display: grid;
+  grid-template-columns: 0.42fr 0.58fr;
+  gap: 0;
+  height: 70vh;
+}
+
+.practice-flip-cards,
+.practice-flip-photos {
+  position: relative;
+}
+
+.practice-flip-card {
+  position: absolute;
+  inset: 0;
+  background: #FFFFFF;
+  color: #000000;
+  transform: translateY(24px);
+  opacity: 0;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+.practice-flip-card::before {
+  content: '';
+  position: absolute;
+  top: var(--space-md); left: var(--space-lg); right: var(--space-lg);
+  height: 1px; background: rgba(0,0,0,0.2);
+  z-index: 1;
+}
+.practice-flip-card.is-active {
+  transform: none;
+  opacity: 1;
+}
+
+/* inner: 3-row grid — eyebrow (auto) | lead (1fr, top-anchored) | footer (auto, bottom-anchored).
+   1fr eliminuje skok stat/sygnatury między kartami niezależnie od długości tekstu. */
+.practice-card-inner {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  row-gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  overflow: hidden;
+  height: 100%;
+}
+
+.practice-flip-photo {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  transform: translateY(12px);
+  opacity: 0;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+.practice-flip-photo.is-active {
+  transform: none;
+  opacity: 1;
+}
+.practice-flip-photo img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: grayscale(100%);
+}
+
+/* ─── Practice card — nowa typograficzna hierarchia ────────── */
+
+/* folio: cicha cyfra w prawym górnym rogu, szepce numer */
+.practice-card-folio {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-lg);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-normal);
+  letter-spacing: var(--tracking-caps);
+  color: rgba(0,0,0,0.3);
+  line-height: 1;
+}
+
+/* eyebrow: nazwa praktyki jako etykieta sekcji */
+.practice-card-eyebrow {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: #000;
+  margin: 0;
+}
+
+/* lead: główny editorial headline — zdanie krzyczy */
+.practice-card-lead {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 2.2vw, 2rem);
+  font-weight: var(--weight-bold);
+  line-height: 1.15;
+  letter-spacing: var(--tracking-tight);
+  color: #000;
+  margin: 0;
+  align-self: start; /* tekst zakotwiczony u góry komórki 1fr */
+}
+
+/* stat: jedna konkretna liczba */
+.practice-card-stat {
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: var(--weight-semibold);
+  color: #000;
+  margin: 0;
+}
+
+/* rule: cienki separator między stat a signature */
+.practice-card-rule {
+  display: block;
+  width: 32px;
+  height: 1px;
+  background: rgba(0,0,0,0.2);
+  flex-shrink: 0;
+}
+
+/* signature: atrybucja partnera — f-meta caps, nie konkuruje ze stat */
+.practice-card-signature {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-normal);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: rgba(0,0,0,0.4);
+  font-style: normal;
+  margin: 0;
+}
+
+/* footer: kontener dla stat+rule+sig+btn — zawsze zakotwiczony u dołu karty (grid row 3).
+   Własny flex-column z gap spójnym z resztą karty. */
+.practice-card-footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  align-self: end;
+  padding-bottom: var(--space-xs);
+}
+
+/* ─── Per-card kompozycja — 4 różne układy, jedna mechanika ── */
+
+/* [1] bleed — inner rozszerza się w prawo, panel zostaje inset:0 */
+.practice-flip-card[data-index="1"] {
+  z-index: 2;
+}
+.practice-flip-card[data-index="1"] .practice-card-inner {
+  width: calc(100% + 60px);
+  overflow: visible;
+}
+
+/* [2] asymetria — padding-left na inner */
+.practice-flip-card[data-index="2"] .practice-card-inner {
+  padding-left: calc(var(--space-lg) + var(--space-md));
+}
+
+/* [3] — treść wyrównana do góry jak 01/02/03 (spójność pionowa).
+   Wcześniej `justify-content: flex-end` (gravitas) zrzucał tekst na dół,
+   przez co karta 04 startowała od środka i wyłamywała się z rytmu. */
+
+/* ─── Photo crops — świadomy kadr per praktyka ──────────────── */
+.practice-flip-photo[data-index="0"] img { object-position: top left; }
+.practice-flip-photo[data-index="1"] img { object-position: 70% center; }
+.practice-flip-photo[data-index="2"] img { object-position: bottom right; }
+.practice-flip-photo[data-index="3"] img { object-position: top center; }
+
+/* ─── Dots — subtelny wskaźnik postępu flip (desktop scrub) ─── */
+.practice-flip-dots {
+  display: flex;
+  gap: var(--space-sm);
+  padding-block: var(--space-md);
+  align-items: center;
+}
+.practice-flip-dots span {
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: var(--border-strong);
+  transition: width var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease);
+}
+.practice-flip-dots span.is-active {
+  width: 48px;
+  background: var(--text);
+}
+@media (max-width: 768px) {
+  .practice-flip-dots { display: none; }
+}
+
+@media (max-width: 768px) {
+  .practice-tabs-grid { grid-template-columns: 1fr; height: auto; perspective: none; }
+  .practice-flip-card,
+  .practice-flip-photo { position: relative; inset: auto; transform: none; opacity: 1; transition: none; }
+  .practice-flip-card:not(.is-active),
+  .practice-flip-photo:not(.is-active) { display: none; }
+  .practice-flip-photo { height: 250px; }
+  /* Padding inner: 64px → 32px per stronę daje content width 199 → 263px.
+     Bez tego 64px padding = 10+ linii leada, stat na 3 linie → skok 156px między kartami. */
+  .practice-card-inner { padding: var(--space-md) var(--space-md); }
+  /* Reset desktop-only per-card overrides */
+  .practice-flip-card[data-index="1"] .practice-card-inner { width: 100%; overflow: hidden; }
+  .practice-flip-card[data-index="2"] .practice-card-inner { padding-left: var(--space-md); }
+  /* lead min-height normalizuje wysokość kart (≈7 linii leada przy 263px content width) */
+  .practice-card-lead { min-height: 8em; }
+}
+
+/* ─── Scroll-driven Practices — desktop / tablet only ──────── */
+@media (min-width: 769px) {
+  /* stat min-height: 2 linie — normalizuje footer na wszystkich kartach.
+     Na wąskich ekranach "2 mld zł uratowanych aktywów" zawija się → stat skacze o ~46px.
+     Scoped do desktop by nie psuć mobilnego layoutu. */
+  .practice-card-stat { min-height: calc(var(--text-h3) * 3.3); }
+
+  .practice-scroll-outer {
+    --practice-scroll-vh: 450;   /* 450vh → >1 ekran na kartę, kasuje ścisk */
+    height: calc(var(--practice-scroll-vh) * 1vh);
+    position: relative;
+  }
+
+
+  .practice-tabs-section {
+    position: sticky;
+    top: 80px;                   /* nav height */
+    height: calc(100vh - 80px);
+    padding-block: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* margin-inline: auto na .container shrinkuje do content width w flex column —
+     width: 100% przywraca pełną szerokość, max-width + auto margin nadal centruje */
+  .practice-tabs-section > .container {
+    width: 100%;
+  }
+
+  .practice-tabs-nav {
+    position: relative;
+    margin-bottom: var(--space-md);
+  }
+  .practice-tabs-grid {
+    flex: 1;
+    min-height: 0;
+    grid-template-rows: 1fr;     /* force row to fill flex-computed height */
+  }
+}
+
+/* ─── Prefers reduced motion ───────────────────────────────── */
+/* KRYTYCZNE — editorial jest motion-heavy. Bez tego = a11y fail */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .scroll-reveal-text { color: var(--text); transform: none; }
+  .word-reveal > span { opacity: 1; transform: none; }
+  .reveal-fade, .press-card.reveal-fade { opacity: 1; transform: none; }
+  .stagger-list > *, .stagger-list.from-left > * { opacity: 1; transform: none; }
+  .section-mega { opacity: 0.05; transform: none; }
+  .practice-flip-card, .practice-flip-photo {
+    position: relative; transform: none; opacity: 1;
+    inset: auto; transition: none;
+  }
+  .practice-flip-card:not(.is-active),
+  .practice-flip-photo:not(.is-active) { display: none; }
+}
